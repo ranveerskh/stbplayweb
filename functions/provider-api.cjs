@@ -131,10 +131,11 @@ exports.handler = async (event) => {
   const path = requestPath(event);
   const body = decodeBody(event);
   const query = event?.queryStringParameters || {};
+  const rawQuery = new URLSearchParams(String(event?.rawQueryString || ""));
   const portalUrl = header(event, "x-stb-portal-url") ||
-    String(body?.portalUrl || body?.portal || query.portalUrl || query.portal || "").trim();
+    String(body?.portalUrl || body?.portal || query.portalUrl || query.portal || rawQuery.get("_stb_portal") || "").trim();
   const mac = header(event, "x-stb-mac") ||
-    String(body?.mac || body?.macAddress || query.mac || query.macAddress || "").trim();
+    String(body?.mac || body?.macAddress || query.mac || query.macAddress || rawQuery.get("_stb_mac") || "").trim();
 
   if (isProviderPath(path) && (!portalUrl || !mac)) {
     return {
