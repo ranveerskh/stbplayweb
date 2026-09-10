@@ -589,7 +589,12 @@ async function request(url, options = {}) {
   }
   headers.set("X-STB-Client", "stb-play-pwa");
   headers.set("X-STB-App-Version", APP_VERSION);
-  const response = await fetch(target, { cache: "no-store", ...options, headers });
+  let requestTarget = target;
+  if (portal && parsed.pathname.startsWith("/api/")) {
+    const separator = requestTarget.includes("?") ? "&" : "?";
+    requestTarget = `${requestTarget}${separator}_stb_portal=${encodeURIComponent(String(portal.portalUrl).trim())}&_stb_mac=${encodeURIComponent(String(portal.mac).trim().toUpperCase())}`;
+  }
+  const response = await fetch(requestTarget, { cache: "no-store", ...options, headers });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
     const error = new Error(payload.error || `Request failed (${response.status}).`);
@@ -1619,7 +1624,10 @@ function showPortalLoading(title) {
 }
 
 function failPortalLoading(error) {
-  const message = "Could not load this portal. The server may be expired or unavailable. Please connect with your provider.";
+  const detail = String(error?.message || "").trim();
+  const message = detail && !/^request failed \(/i.test(detail)
+    ? `Could not load this portal: ${detail}`
+    : "Could not load this portal. The server may be expired or unavailable. Please connect with your provider.";
   setPortalLoadingProgress(100, "Unable to connect", "Portal could not be loaded");
   elements.portalLoadingModal?.classList.add("is-error");
   if (elements.portalLoadingError) { elements.portalLoadingError.textContent = message; elements.portalLoadingError.hidden = false; }
