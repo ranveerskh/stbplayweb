@@ -404,7 +404,11 @@ function writeWebPortalState(portals, activePortalId) {
 
 function currentWebPortal() {
   const saved = readWebPortalState();
-  return saved.portals.find((portal) => portal.id === saved.activePortalId) || saved.portals[0] || null;
+  return saved.portals.find((portal) => portal.id === saved.activePortalId) ||
+    saved.portals[0] ||
+    state.portals.find((portal) => portal.id === state.activePortalId) ||
+    state.portals[0] ||
+    null;
 }
 
 async function hashWebSecret(value, salt) {
@@ -579,9 +583,9 @@ async function request(url, options = {}) {
     : url;
   const headers = new Headers(options.headers || {});
   const portal = currentWebPortal();
-  if (portal) {
-    headers.set("X-STB-Portal-URL", portal.portalUrl);
-    headers.set("X-STB-MAC", portal.mac);
+  if (portal?.portalUrl && portal?.mac) {
+    headers.set("X-STB-Portal-URL", String(portal.portalUrl).trim());
+    headers.set("X-STB-MAC", String(portal.mac).trim().toUpperCase());
   }
   headers.set("X-STB-Client", "stb-play-pwa");
   headers.set("X-STB-App-Version", APP_VERSION);
