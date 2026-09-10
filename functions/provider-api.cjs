@@ -16,9 +16,20 @@ const {
 
 function header(event, name) {
   const wanted = String(name || "").toLowerCase();
-  const headers = event?.headers || {};
-  const key = Object.keys(headers).find((candidate) => candidate.toLowerCase() === wanted);
-  return key ? String(headers[key] || "").trim() : "";
+  const sources = [
+    event?.headers,
+    event?.multiValueHeaders,
+    event?.requestContext?.http?.headers,
+  ];
+  for (const headers of sources) {
+    if (!headers || typeof headers !== "object") continue;
+    const key = Object.keys(headers).find((candidate) => candidate.toLowerCase() === wanted);
+    if (key) {
+      const value = headers[key];
+      return Array.isArray(value) ? String(value[0] || "").trim() : String(value || "").trim();
+    }
+  }
+  return "";
 }
 
 function decodeBody(event) {
@@ -118,8 +129,12 @@ function isProviderPath(path) {
 
 exports.handler = async (event) => {
   const path = requestPath(event);
-  const portalUrl = header(event, "x-stb-portal-url");
-  const mac = header(event, "x-stb-mac");
+  const body = decodeBody(event);
+  const query = event?.queryStringParameters || {};
+  const portalUrl = header(event, "x-stb-portal-url") ||
+    String(body?.portalUrl || body?.portal || query.portalUrl || query.portal || "").trim();
+  const mac = header(event, "x-stb-mac") ||
+    String(body?.mac || body?.macAddress || query.mac || query.macAddress || "").trim();
 
   if (isProviderPath(path) && (!portalUrl || !mac)) {
     return {
