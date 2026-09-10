@@ -520,7 +520,10 @@ function readConfig() {
 
   const service = SERVICES[stored.serviceId];
   const portalUrl = web?.portalUrl || portalFromEnv || profile?.portalUrl || service?.portalUrl || stored.portalUrl;
-  const mac = (web?.mac || macFromEnv || profile?.mac || stored.mac || "").trim().toUpperCase();
+  const mac = (web?.mac || macFromEnv || profile?.mac || stored.mac || "")
+    .trim()
+    .toUpperCase()
+    .replace(/[.-]/g, ":");
 
   if (!portalUrl || !mac) return null;
 
