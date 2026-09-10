@@ -1,0 +1,18 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    /* Customer data is readable only by the signed-in customer whose UID is
+       part of the document path. Clients cannot write entitlement data. */
+    match /customers/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if false;
+    }
+
+    /* Add explicit rules for any other private collections before deployment.
+       The deny-all fallback prevents accidental public access. */
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

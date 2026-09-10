@@ -1,0 +1,19 @@
+{
+  "name": "STB PLAY",
+  "short_name": "STB PLAY",
+  "description": "STB PLAY browser IPTV player for authorized providers.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#07101b",
+  "theme_color": "#07101b",
+  "icons": [
+    {
+      "src": "/assets/stb-play-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

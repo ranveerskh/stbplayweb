@@ -1,0 +1,13 @@
+{
+  "name": "stb-play-webapp",
+  "version": "1.0.0-web",
+  "private": true,
+  "description": "STB PLAY responsive browser/PWA edition based on Windows v1.8.15",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "check": "node --check public/app.js && node --check functions/provider-api.cjs && node --check functions/provider-runtime.cjs",
+    "serve": "npx netlify-cli dev"
+  }
+}
